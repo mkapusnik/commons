@@ -4,10 +4,10 @@ steps:
     args:
       - '-c'
       - |
-        git clone --depth 1 https://github.com/GoogleCloudPlatform/cloud-builders-community.git .
+        git clone --depth 1 https://github.com/GoogleCloudPlatform/cloud-builders-community.git sources
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '--pull', '--tag=gcr.io/$PROJECT_ID/fastlane', 'fastlane/.']
+    args: ['build', '--pull', '--tag=gcr.io/$PROJECT_ID/fastlane', 'sources/fastlane/.']
 
   - name: 'gcr.io/$PROJECT_ID/fastlane'
     args: ['--version']
