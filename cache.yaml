@@ -11,7 +11,7 @@ steps:
     args: 
     - 'build'
     - '--tag=gcr.io/$PROJECT_ID/cache:latest'
-    - '--file=Dockerfile-base'
+    - '--file=sources/cache/Dockerfile-base'
     - 'sources/cache/.'
 
   - name: 'gcr.io/cloud-builders/docker'
@@ -19,7 +19,7 @@ steps:
     args: 
     - 'build'
     - '--tag=gcr.io/$PROJECT_ID/save_cache:latest'
-    - '--file=Dockerfile-save'
+    - '--file=sources/cache/Dockerfile-save'
     - '--build-arg=project_id=$PROJECT_ID'
     - '--cache-from=gcr.io/$PROJECT_ID/cache:latest'
     - 'sources/cache/.'
@@ -29,7 +29,7 @@ steps:
     args: 
     - 'build'
     - '--tag=gcr.io/$PROJECT_ID/restore_cache:latest'
-    - '--file=Dockerfile-restore'
+    - '--file=sources/cache/Dockerfile-restore'
     - '--build-arg=project_id=$PROJECT_ID'
     - '--cache-from=gcr.io/$PROJECT_ID/cache:latest'
     - 'sources/cache/.'
