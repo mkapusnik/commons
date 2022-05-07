@@ -1,0 +1,16 @@
+steps:
+  - name: gcr.io/cloud-builders/git
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        git clone --depth 1 https://github.com/GoogleCloudPlatform/cloud-builders-community.git sources
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '--pull', '--tag=gcr.io/$PROJECT_ID/firebase', 'sources/firebase/.']
+
+  - name: 'gcr.io/$PROJECT_ID/firebase'
+    args: ['--version']
+
+images: ['gcr.io/$PROJECT_ID/firebase']
+tags: ['cloud-builders-community']
