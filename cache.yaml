@@ -1,0 +1,42 @@
+steps:
+  - name: gcr.io/cloud-builders/git
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        git clone --depth 1 https://github.com/GoogleCloudPlatform/cloud-builders-community.git sources
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: build_base_image
+    args: 
+    - 'build'
+    - '--tag=gcr.io/$PROJECT_ID/cache:latest'
+    - '--file=Dockerfile-base'
+    - 'sources/cache/.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: build_save_cache
+    args: 
+    - 'build'
+    - '--tag=gcr.io/$PROJECT_ID/save_cache:latest'
+    - '--file=Dockerfile-save'
+    - '--build-arg=project_id=$PROJECT_ID'
+    - '--cache-from=gcr.io/$PROJECT_ID/cache:latest'
+    - 'sources/cache/.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: build_restore_cache
+    args: 
+    - 'build'
+    - '--tag=gcr.io/$PROJECT_ID/restore_cache:latest'
+    - '--file=Dockerfile-restore'
+    - '--build-arg=project_id=$PROJECT_ID'
+    - '--cache-from=gcr.io/$PROJECT_ID/cache:latest'
+    - 'sources/cache/.'
+
+images: 
+- 'gcr.io/$PROJECT_ID/cache:latest'
+- 'gcr.io/$PROJECT_ID/save_cache:latest'
+- 'gcr.io/$PROJECT_ID/restore_cache:latest'
+
+tags: ['cloud-builders-community'] 
