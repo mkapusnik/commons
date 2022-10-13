@@ -1,9 +1,9 @@
 FROM debian:buster
 
-ENV ANDROID_VERSION="31"
-ENV ANDROID_BUILD_TOOLS_VERSION="30.0.2"
+ENV ANDROID_VERSION="33"
+ENV ANDROID_BUILD_TOOLS_VERSION="33.0.0"
 ENV TOOLS_VERSION="5.0"
-ENV ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip"
+ENV ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip"
 ENV ANDROID_ROOT="/opt/android_sdk"
 ENV FLUTTER_ROOT="/opt/flutter"
 ENV PATH="$ANDROID_ROOT/cmdline-tools/tools/bin:$ANDROID_ROOT/platform-tools:$ANDROID_ROOT/platforms:$FLUTTER_ROOT/bin:$PATH"
