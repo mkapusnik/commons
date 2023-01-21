@@ -1,7 +1,9 @@
 FROM debian:buster
 
 ENV ANDROID_VERSION="33"
+ENV ANDROID_VERSION_v2="31"
 ENV ANDROID_BUILD_TOOLS_VERSION="33.0.0"
+ENV ANDROID_BUILD_TOOLS_VERSION_2="30.0.3"
 ENV TOOLS_VERSION="5.0"
 ENV ANDROID_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip"
 ENV ANDROID_ROOT="/opt/android_sdk"
@@ -21,7 +23,9 @@ RUN mkdir -p /home/$USER/.android \
 
 RUN yes "y" | sdkmanager "--update" "--verbose" \
   && yes "y" | sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
+  && yes "y" | sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VERSION_2" \
   && yes "y" | sdkmanager "platforms;android-$ANDROID_VERSION" \
+  && yes "y" | sdkmanager "platforms;android-$ANDROID_VERSION_v2" \
   && yes "y" | sdkmanager "cmdline-tools;$TOOLS_VERSION" \
   && yes "y" | sdkmanager "platform-tools" \
   && yes "y" | sdkmanager "ndk;23.0.7599858"
