@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bookworm
 
 ENV ANDROID_VERSION="33"
 ENV ANDROID_VERSION_v2="31"
@@ -36,5 +36,7 @@ RUN flutter config --no-analytics \
   && flutter precache --no-ios --no-macos \
   && yes "y" | flutter doctor --android-licenses \
   && flutter doctor -v
+
+RUN flutter upgrade
 
 ENTRYPOINT [ "flutter" ]
