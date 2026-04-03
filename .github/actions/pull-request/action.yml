@@ -42,7 +42,7 @@ runs:
   steps:
     - id: upsert
       name: Create or update pull request
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ inputs.token }}
         script: |
@@ -99,7 +99,7 @@ runs:
 
     - name: Enable auto-merge
       if: ${{ inputs.auto_merge == 'true' }}
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ inputs.token }}
         script: |
