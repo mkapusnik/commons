@@ -48,10 +48,10 @@ runs:
         script: |
           const owner = context.repo.owner;
           const repo = context.repo.repo;
-          const headInput = `${{ inputs.head }}`.trim();
-          const base = `${{ inputs.base }}`.trim();
-          const title = `${{ inputs.title }}`.trim();
-          const body = `${{ inputs.body }}`;
+          const headInput = (process.env.PR_HEAD ?? '').trim();
+          const base = (process.env.PR_BASE ?? '').trim();
+          const title = (process.env.PR_TITLE ?? '').trim();
+          const body = process.env.PR_BODY ?? '';
 
           if (!headInput) throw new Error('Input "head" must be a non-empty string');
           if (!base) throw new Error('Input "base" must be a non-empty string');
@@ -96,6 +96,11 @@ runs:
             core.setOutput('pull_request_id', created.data.node_id);
             core.info(`Created PR #${created.data.number}`);
           }
+      env:
+        PR_HEAD: ${{ inputs.head }}
+        PR_BASE: ${{ inputs.base }}
+        PR_TITLE: ${{ inputs.title }}
+        PR_BODY: ${{ inputs.body }}
 
     - name: Enable auto-merge
       if: ${{ inputs.auto_merge == 'true' }}
@@ -103,8 +108,8 @@ runs:
       with:
         github-token: ${{ inputs.token }}
         script: |
-          const pullRequestId = `${{ steps.upsert.outputs.pull_request_id }}`.trim();
-          const methodInput = `${{ inputs.merge_method }}`.trim().toLowerCase();
+          const pullRequestId = (process.env.PULL_REQUEST_ID ?? '').trim();
+          const methodInput = (process.env.MERGE_METHOD ?? '').trim().toLowerCase();
           const methods = {
             merge: 'MERGE',
             squash: 'SQUASH',
@@ -132,3 +137,6 @@ runs:
           );
 
           core.info(`Enabled auto-merge with ${methodInput} strategy`);
+      env:
+        PULL_REQUEST_ID: ${{ steps.upsert.outputs.pull_request_id }}
+        MERGE_METHOD: ${{ inputs.merge_method }}
