@@ -1,0 +1,24 @@
+name: Validate GitHub Actions
+
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate action metadata
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install YAML parser
+        run: python3 -m pip install --user --disable-pip-version-check PyYAML==6.0.3
+
+      - name: Validate local actions and workflows
+        run: python3 .github/scripts/validate-github-actions.py
