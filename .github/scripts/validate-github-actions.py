@@ -19,6 +19,7 @@ except ImportError:  # pragma: no cover - exercised by CI setup failures only.
 
 ACTION_FILENAMES = {"action.yml", "action.yaml"}
 WORKFLOW_SUFFIXES = {".yml", ".yaml"}
+SUPPORTED_NODE_RUNTIMES = {"node20", "node24"}
 
 
 class ValidationError(Exception):
@@ -113,6 +114,8 @@ def validate_composite_steps(runs: dict[str, Any], path: Path) -> None:
         has_run = isinstance(step.get("run"), str) and bool(step["run"].strip())
         if has_uses == has_run:
             raise ValidationError(f"{path}: runs.steps[{index}] must define exactly one of uses or run")
+        if has_run:
+            require_non_empty_string(step.get("shell"), path, f"runs.steps[{index}].shell")
 
 
 def validate_runs(metadata: dict[str, Any], path: Path) -> str:
@@ -121,12 +124,13 @@ def validate_runs(metadata: dict[str, Any], path: Path) -> str:
 
     if using == "composite":
         validate_composite_steps(runs, path)
-    elif using.startswith("node"):
+    elif using in SUPPORTED_NODE_RUNTIMES:
         require_non_empty_string(runs.get("main"), path, "runs.main")
     elif using == "docker":
         require_non_empty_string(runs.get("image"), path, "runs.image")
     else:
-        raise ValidationError(f"{path}: runs.using has unsupported value {using!r}")
+        supported = ", ".join(sorted(["composite", "docker", *SUPPORTED_NODE_RUNTIMES]))
+        raise ValidationError(f"{path}: runs.using has unsupported value {using!r}; supported values: {supported}")
 
     return using
 
