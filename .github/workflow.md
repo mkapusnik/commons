@@ -34,9 +34,9 @@ requesting review or enabling merge-related automation.
 
 ## CI validation
 
-`Validate GitHub Actions` runs on pull requests targeting `master`. It validates
-all local `action.yml` and `action.yaml` metadata files, plus workflow YAML files
-under `.github/workflows/`.
+`Validate GitHub Actions` runs on pull requests targeting `master` or `develop`.
+It validates all local `action.yml` and `action.yaml` metadata files, plus
+workflow YAML files under `.github/workflows/`.
 
 The check requires no repository secrets and only `contents: read` permission. It
 fails on invalid YAML, duplicate YAML mapping keys, missing basic action metadata
