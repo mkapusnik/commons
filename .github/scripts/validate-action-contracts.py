@@ -35,6 +35,8 @@ EXPECTED_CONTRACTS = {
         },
         "outputs": {"changed", "previous_sha", "new_sha", "ref"},
         "documentation": Path(".github/actions/git-ref/README.md"),
+        "token_env": "GIT_REF_TOKEN",
+        "token_error": 'Input "token" must be a non-empty string',
     },
     Path(".github/actions/workflow-state/action.yml"): {
         "name": "Set Workflow State",
@@ -46,6 +48,8 @@ EXPECTED_CONTRACTS = {
         },
         "outputs": {"changed", "previous_state", "new_state", "workflow_id", "workflow_path"},
         "documentation": Path(".github/actions/workflow-state/README.md"),
+        "token_env": "WORKFLOW_STATE_TOKEN",
+        "token_error": 'Input "token" must be a non-empty string',
     },
 }
 
@@ -113,6 +117,27 @@ def validate_documentation(path: Path) -> None:
         raise ValidationError(f"{path}: missing documentation snippets: {', '.join(missing)}")
 
 
+def validate_token_validation(path: Path, metadata: dict[str, Any], token_env: str, token_error: str) -> None:
+    runs = require_mapping(metadata.get("runs"), path, "runs")
+    steps = runs.get("steps")
+    if not isinstance(steps, list) or not steps:
+        raise ValidationError(f"{path}: runs.steps must be a non-empty list")
+
+    first_step = require_mapping(steps[0], path, "runs.steps[1]")
+    env = require_mapping(first_step.get("env"), path, "runs.steps[1].env")
+    if env.get(token_env) != "${{ inputs.token }}":
+        raise ValidationError(f"{path}: runs.steps[1].env.{token_env} must map to inputs.token")
+
+    with_metadata = require_mapping(first_step.get("with"), path, "runs.steps[1].with")
+    script = with_metadata.get("script")
+    if not isinstance(script, str):
+        raise ValidationError(f"{path}: runs.steps[1].with.script must be a string")
+    if f"process.env.{token_env}" not in script:
+        raise ValidationError(f"{path}: script must read {token_env} from the environment")
+    if token_error not in script:
+        raise ValidationError(f"{path}: script must explicitly fail on an empty token input")
+
+
 def validate_contract(path: Path, contract: dict[str, Any]) -> None:
     metadata = load_yaml(path)
     if metadata.get("name") != contract["name"]:
@@ -121,6 +146,7 @@ def validate_contract(path: Path, contract: dict[str, Any]) -> None:
     validate_inputs(path, metadata, contract["inputs"])
     validate_outputs(path, metadata, contract["outputs"])
     validate_documentation(contract["documentation"])
+    validate_token_validation(path, metadata, contract["token_env"], contract["token_error"])
 
 
 def main() -> int:

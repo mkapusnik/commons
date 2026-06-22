@@ -47,6 +47,7 @@ runs:
           const repository = (process.env.WORKFLOW_STATE_REPOSITORY ?? '').trim();
           const workflowInput = (process.env.WORKFLOW_STATE_WORKFLOW ?? '').trim();
           const stateInput = (process.env.WORKFLOW_STATE_STATE ?? '').trim().toLowerCase().replace(/-/g, '_');
+          const token = (process.env.WORKFLOW_STATE_TOKEN ?? '').trim();
 
           const describeError = (error) => {
             const status = error.status ? `${error.status} ` : '';
@@ -68,6 +69,7 @@ runs:
           if (!repository) throw new Error('Input "repository" must be a non-empty string');
           if (!workflowInput) throw new Error('Input "workflow" must be a non-empty string');
           if (!stateInput) throw new Error('Input "state" must be a non-empty string');
+          if (!token) throw new Error('Input "token" must be a non-empty string');
 
           let desiredEnabled;
           if (enabledAliases.has(stateInput)) {
@@ -123,3 +125,4 @@ runs:
         WORKFLOW_STATE_REPOSITORY: ${{ inputs.repository || github.repository }}
         WORKFLOW_STATE_WORKFLOW: ${{ inputs.workflow }}
         WORKFLOW_STATE_STATE: ${{ inputs.state }}
+        WORKFLOW_STATE_TOKEN: ${{ inputs.token }}
