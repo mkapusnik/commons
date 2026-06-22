@@ -10,7 +10,7 @@ The `body`, `title`, `head`, and `base` inputs are passed to the action as runti
 - uses: ./.github/actions/pull-request
   with:
     head: release/promote-candidate
-    base: develop
+    base: master
     title: "Promote candidate: don't escape `inline code`"
     body: |
       ## Summary
