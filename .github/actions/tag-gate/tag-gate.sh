@@ -45,15 +45,30 @@ read_tag_sha() {
   local tag="$2"
   local output
   local status
+  local direct_sha=""
+  local peeled_sha=""
+  local sha=""
+  local ref=""
 
   set +e
-  output=$(git ls-remote --exit-code --refs "$remote" "refs/tags/$tag" 2>&1)
+  output=$(git ls-remote --exit-code "$remote" "refs/tags/$tag" "refs/tags/$tag^{}" 2>&1)
   status=$?
   set -e
 
   case "$status" in
     0)
-      printf '%s\n' "$output" | awk 'NR == 1 { print $1 }'
+      while read -r sha ref; do
+        case "$ref" in
+          "refs/tags/$tag")
+            direct_sha="$sha"
+            ;;
+          "refs/tags/$tag^{}")
+            peeled_sha="$sha"
+            ;;
+        esac
+      done <<<"$output"
+
+      printf '%s\n' "${peeled_sha:-$direct_sha}"
       ;;
     2)
       printf '\n'
@@ -85,6 +100,10 @@ require_non_empty GITHUB_OUTPUT "${GITHUB_OUTPUT:-}"
 validate_repository "$repository"
 validate_tag source_tag "$source_tag"
 validate_tag target_tag "$target_tag"
+
+if [[ "$remote" == -* ]]; then
+  fail "Input \"remote\" must not start with '-'"
+fi
 
 source_sha="$(read_tag_sha "$remote" "$source_tag")"
 

@@ -27,12 +27,13 @@ run_gate() {
   local source_tag="$1"
   local target_tag="$2"
   local output_file="$3"
+  local remote="${4:-$TMP_DIR/remote.git}"
 
   : >"$output_file"
   TAG_GATE_SOURCE_TAG="$source_tag" \
     TAG_GATE_TARGET_TAG="$target_tag" \
     TAG_GATE_REPOSITORY="mkapusnik/commons" \
-    TAG_GATE_REMOTE="$TMP_DIR/remote.git" \
+    TAG_GATE_REMOTE="$remote" \
     GITHUB_OUTPUT="$output_file" \
     "$ACTION_SCRIPT" >/dev/null
 }
@@ -51,6 +52,9 @@ second_sha="$(git -C "$work_repo" rev-parse HEAD)"
 git -C "$work_repo" tag source "$second_sha"
 git -C "$work_repo" tag same-target "$second_sha"
 git -C "$work_repo" tag old-target "$first_sha"
+git -C "$work_repo" tag -a annotated-source "$second_sha" -m 'annotated source'
+git -C "$work_repo" tag -a annotated-same-target "$second_sha" -m 'annotated same target'
+git -C "$work_repo" tag -a annotated-old-target "$first_sha" -m 'annotated old target'
 git -C "$work_repo" push "$remote_repo" --tags >/dev/null
 
 missing_source_output="$TMP_DIR/missing-source.out"
@@ -78,6 +82,27 @@ assert_equals true "$(value_for should_run "$different_output")" 'different tags
 assert_equals pending "$(value_for reason "$different_output")" 'different tags reason'
 assert_equals "$first_sha" "$(value_for target_sha "$different_output")" 'different target SHA'
 
+annotated_missing_target_output="$TMP_DIR/annotated-missing-target.out"
+run_gate annotated-source missing-target "$annotated_missing_target_output"
+assert_equals true "$(value_for should_run "$annotated_missing_target_output")" 'annotated source with missing target should run'
+assert_equals pending "$(value_for reason "$annotated_missing_target_output")" 'annotated source with missing target reason'
+assert_equals "$second_sha" "$(value_for source_sha "$annotated_missing_target_output")" 'annotated source peels to commit SHA'
+assert_equals '' "$(value_for target_sha "$annotated_missing_target_output")" 'annotated source with missing target target SHA is empty'
+
+annotated_same_output="$TMP_DIR/annotated-same.out"
+run_gate annotated-source annotated-same-target "$annotated_same_output"
+assert_equals false "$(value_for should_run "$annotated_same_output")" 'annotated tags at same commit should not run'
+assert_equals already-current "$(value_for reason "$annotated_same_output")" 'annotated tags at same commit reason'
+assert_equals "$second_sha" "$(value_for source_sha "$annotated_same_output")" 'annotated same source SHA'
+assert_equals "$second_sha" "$(value_for target_sha "$annotated_same_output")" 'annotated same target SHA'
+
+annotated_different_output="$TMP_DIR/annotated-different.out"
+run_gate annotated-source annotated-old-target "$annotated_different_output"
+assert_equals true "$(value_for should_run "$annotated_different_output")" 'annotated tags at different commits should run'
+assert_equals pending "$(value_for reason "$annotated_different_output")" 'annotated tags at different commits reason'
+assert_equals "$second_sha" "$(value_for source_sha "$annotated_different_output")" 'annotated different source SHA'
+assert_equals "$first_sha" "$(value_for target_sha "$annotated_different_output")" 'annotated different target SHA'
+
 invalid_output="$TMP_DIR/invalid.out"
 if run_gate 'bad tag' target "$invalid_output" 2>"$TMP_DIR/invalid.err"; then
   printf 'Expected invalid tag name to fail.\n' >&2
@@ -86,6 +111,17 @@ fi
 if ! grep -q 'not a valid Git tag name' "$TMP_DIR/invalid.err"; then
   printf 'Expected invalid tag error message.\n' >&2
   cat "$TMP_DIR/invalid.err" >&2
+  exit 1
+fi
+
+invalid_remote_output="$TMP_DIR/invalid-remote.out"
+if run_gate source target "$invalid_remote_output" '--upload-pack=malicious' 2>"$TMP_DIR/invalid-remote.err"; then
+  printf 'Expected invalid remote to fail.\n' >&2
+  exit 1
+fi
+if ! grep -q 'must not start with' "$TMP_DIR/invalid-remote.err"; then
+  printf 'Expected invalid remote error message.\n' >&2
+  cat "$TMP_DIR/invalid-remote.err" >&2
   exit 1
 fi
 

@@ -1,6 +1,7 @@
 # Lifecycle Tag Gate
 
 Gates lifecycle workflows by checking whether a source lifecycle tag exists and whether a target lifecycle tag already points at the same SHA.
+Annotated tags are peeled to the commit SHA they reference before comparison.
 
 Missing tags are normal lifecycle states, not failures:
 
@@ -25,8 +26,8 @@ Tag names are validated with Git ref-name rules before they are used.
 | Name | Description |
 | --- | --- |
 | `should_run` | `true` only when `reason=pending`; otherwise `false`. |
-| `source_sha` | SHA currently referenced by `source_tag`, or an empty string when `source_tag` is missing. |
-| `target_sha` | SHA currently referenced by `target_tag`, or an empty string when `target_tag` is missing. |
+| `source_sha` | Commit SHA currently referenced by `source_tag`, or an empty string when `source_tag` is missing. |
+| `target_sha` | Commit SHA currently referenced by `target_tag`, or an empty string when `target_tag` is missing. |
 | `short_sha` | First 12 characters of `source_sha`, or an empty string when `source_tag` is missing. |
 | `reason` | One of `source-missing`, `already-current`, or `pending`. |
 

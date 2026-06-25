@@ -24,10 +24,10 @@ outputs:
     description: 'true only when source_tag exists and target_tag is missing or points at a different SHA.'
     value: ${{ steps.gate.outputs.should_run }}
   source_sha:
-    description: SHA currently referenced by source_tag, or an empty string when source_tag is missing.
+    description: Commit SHA currently referenced by source_tag, or an empty string when source_tag is missing.
     value: ${{ steps.gate.outputs.source_sha }}
   target_sha:
-    description: SHA currently referenced by target_tag, or an empty string when target_tag is missing.
+    description: Commit SHA currently referenced by target_tag, or an empty string when target_tag is missing.
     value: ${{ steps.gate.outputs.target_sha }}
   short_sha:
     description: Short source SHA when source_tag exists; otherwise an empty string.
