@@ -39,6 +39,18 @@ When using this action from another repository, pin the caller workflow to a tru
 
 ## Example
 
+Cross-repository usage:
+
+```yaml
+- id: tag-gate
+  uses: mkapusnik/commons/.github/actions/tag-gate@master
+  with:
+    source_tag: staging
+    target_tag: production
+```
+
+Same-repository workflow usage:
+
 ```yaml
 name: Promote lifecycle tag
 
