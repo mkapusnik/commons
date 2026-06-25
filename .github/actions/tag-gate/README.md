@@ -35,7 +35,7 @@ Tag names are validated with Git ref-name rules before they are used.
 
 This action reads tags with `git ls-remote` and does not require `actions: write`. For same-repository usage with `actions/checkout`, `contents: read` is sufficient.
 
-When using this action from another repository, pin the caller workflow to a trusted ref for this repository.
+When using this action from another repository, production consumers should pin `mkapusnik/commons` to a trusted tag or SHA instead of a moving branch ref when practical.
 
 ## Example
 
@@ -47,7 +47,10 @@ Cross-repository usage:
   with:
     source_tag: staging
     target_tag: production
+    remote: https://github.com/<owner>/<repo>.git
 ```
+
+The explicit `remote` avoids depending on an `origin` remote created by a prior checkout step.
 
 Same-repository workflow usage:
 
