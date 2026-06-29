@@ -43,7 +43,7 @@ Cross-repository usage:
 
 ```yaml
 - id: tag-gate
-  uses: mkapusnik/commons/.github/actions/tag-gate@master
+  uses: mkapusnik/commons/.github/actions/tag-gate@v1
   with:
     source_tag: staging
     target_tag: production
